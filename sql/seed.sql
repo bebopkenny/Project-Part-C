@@ -1,8 +1,10 @@
-DML Seed Scripts:
+-- DML Seed Scripts:
 
 USE theatre_booking;
 
 DELIMITER $$
+
+DROP PROCEDURE IF EXISTS seed_demo_data;
 
 CREATE PROCEDURE seed_demo_data()
 BEGIN
@@ -30,7 +32,7 @@ BEGIN
     ('Irvine Spectrum',  '31 Spectrum Center Dr', 'Irvine', 'CA', '92618');
 
   -- 10 auditoriums with different sizes
-  INSERT INTO auditorium (theatre_id, name, row_count, seat_count) VALUES
+  INSERT INTO auditorium (theatreid, name, rowcount, seatcount) VALUES
     (1, 'Auditorium 1',  8,  96),   -- 8 x 12
     (1, 'Auditorium 2', 10, 160),   -- 10 x 16
     (1, 'Auditorium 3', 12, 240),   -- 12 x 20
@@ -62,7 +64,7 @@ BEGIN
     WHILE j <= row_cnt DO
       SET k = 1;
       WHILE k <= col_cnt DO
-        INSERT INTO seat (auditorium_id, row_number, seat_number, seat_type)
+        INSERT INTO seat (auditoriumid, rownumber, seatnumber, seattype)
         VALUES (
           aud_id,
           j,
@@ -82,7 +84,7 @@ BEGIN
   END WHILE;
 
   -- 12 movies
-  INSERT INTO movie (name, runtime_minutes, mpaa, release_date) VALUES
+  INSERT INTO movie (name, runtimeminutes, mpaa, releasedate) VALUES
     ('Spirited Away',          125, 'pg',   '2001-07-20'),
     ('Inception',              148, 'pg13', '2010-07-16'),
     ('The Dark Knight',        152, 'pg13', '2008-07-18'),
@@ -99,21 +101,22 @@ BEGIN
   -- 80 showtimes over a range of days, rotating movies & auditoriums
   SET i = 1;
   WHILE i <= 80 DO
-    INSERT INTO showtime (movie_id, auditorium_id, start_time, format, language, base_price)
+    INSERT INTO showtime (movieid, auditoriumid, starttime, format, language, baseprice)
     VALUES (
       1 + MOD(i-1, 12),                 -- movie 1..12
       1 + MOD(i-1, 10),                 -- auditorium 1..10
-      DATE_ADD('2025-10-20 12:00:00',
-               INTERVAL (FLOOR((i-1)/10)) DAY
-               + INTERVAL (MOD(i-1,10) * 2) HOUR),
+      DATE_ADD(
+        DATE_ADD('2025-10-20 12:00:00',
+               INTERVAL FLOOR((i-1)/10) DAY),
+               INTERVAL (MOD(i-1,10) * 2) HOUR),
       CASE MOD(i,3)
-        WHEN 1 THEN '2D'
-        WHEN 2 THEN '3D'
-        ELSE 'IMAX'
+        WHEN 1 THEN '2d'
+        WHEN 2 THEN '3d'
+        ELSE 'imax'
       END,
       CASE MOD(i,2)
-        WHEN 0 THEN 'SUB'
-        ELSE 'DUB'
+        WHEN 0 THEN 'sub'
+        ELSE 'dub'
       END,
       15.00 + MOD(i,5)  -- between 15 and 19
     );
@@ -123,7 +126,7 @@ BEGIN
   -- 60 customers
   SET i = 1;
   WHILE i <= 60 DO
-    INSERT INTO customer (name, email, guest_flag)
+    INSERT INTO customer (name, email, guestflag)
     VALUES (
       CONCAT('Customer ', i),
       CONCAT('customer', i, '@example.com'),
@@ -139,7 +142,7 @@ BEGIN
     WHILE j <= 5 DO         -- 5 * 80 = 400 tickets
       SET cust_id = 1 + MOD((i-1)*5 + j - 1, 60);
 
-      INSERT INTO ticket (showtime_id, seat_id, customer_id, price, discount_type, status)
+      INSERT INTO ticket (showtimeid, seatid, customerid, price, discounttype, status)
       VALUES (
         i,
         1 + MOD((i-1)*5 + j - 1, 500),
