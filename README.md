@@ -53,7 +53,7 @@ The DDL also defines primary keys, foreign keys, and ENUM columns to match the r
 
 Next execute the DML seed script, that defines and calls the procedure `seed_demo_data` with the following behavior:
 
-- Deletes any existing rows in `ticket_audit`, `ticket`, `customer`, `showtime`, `seat`, `auditorium`, `movie`, and `theatre` in a safe order.
+- Deletes any existing rows in `ticket`, `customer`, `showtime`, `seat`, `auditorium`, `movie`, and `theatre` in a safe order.
 - Inserts 3 theatres with realistic addresses.
 - Inserts 10 auditoriums (with different rows and seats) across those theatres.
 - It iterates over three auditorium layouts (8x12, 10x16, 12x20) to create full seat maps that assign one of three seat types (STANDARD, PREMIUM and ADA) by position.
@@ -83,9 +83,6 @@ This view reports details such as the theatre name, showtime, the total number o
 
 **`trg_ticket_before_insert`**  
 This trigger runs first when inserting the ticket to verify if there is already a ticket for the same seat and showtime with status RESERVED, PURCHASED, or USED; if there is, an error is raised to prevent double selling the seat.
-
-**`trg_ticket_after_insert`**  
-After the ticket has been inserted, write an audit entry into `ticket_audit` with the action "INSERT".
 
 **`trg_ticket_after_update_refunded`**  
 After the ticket has been updated, if the status has changed to REFUNDED, it adds an audit entry into `ticket_audit` with action "REFUND", for tracking refunds and setting the seat free again for availability checks.
@@ -183,17 +180,6 @@ CALL sell_ticket(1, 1, 1, 'STUDENT', @new_ticket_id);
 
 This should result in an error saying that the seat is already sold or reserved for this showtime, confirming that `trg_ticket_before_insert` is working.
 
-Verifying the refund process:
-
-```sql
-UPDATE ticket
-SET status = 'REFUNDED'
-WHERE ticket_id = @new_ticket_id;
-
-SELECT * FROM ticket_audit WHERE ticket_id = @new_ticket_id;
-```
-
-You should now see an additional audit row with the action 'REFUND'.
 
 ### Verifying the backup procedure
 
