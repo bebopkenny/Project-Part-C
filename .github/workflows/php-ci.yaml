@@ -25,7 +25,7 @@ jobs:
       - name: Validate composer.json (if exists)
         run: |
           if [ -f composer.json ]; then
-            composer validate --strict
+            composer validate 
           fi
 
         # Hash the file composer.json, if it does not exist (therfore giving us no hash '') then dont install

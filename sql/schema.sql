@@ -1,6 +1,10 @@
-CREATE DATABASE theatre_booking;
+CREATE DATABASE IF NOT EXISTS theatre_booking; 
 USE theatre_booking;
 
+-- Making a user for development
+CREATE USER IF NOT EXISTS 'proj_user'@'localhost' IDENTIFIED BY 'proj_pass';
+GRANT ALL PRIVILEGES ON theatre_booking.* TO 'proj_user'@'localhost';
+FLUSH PRIVILEGES;
 
 CREATE TABLE IF NOT EXISTS theatre (
     TheatreID INT PRIMARY KEY AUTO_INCREMENT,
