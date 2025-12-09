@@ -4,7 +4,7 @@
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
 
-// Get movie_id from URL (required)
+// Get movie_id from URL
 $movie_id = param('movie_id', null, 'GET');
 $theatre_id = param('theatre_id', null, 'GET');
 $date = param('date', null, 'GET');  // Optional date filter
@@ -49,6 +49,7 @@ $sql = "
     WHERE s.MovieID = :movie_id
 ";
 
+//    This filters out past showtimes, right now for testing it showcases all start times
 //    AND s.StartTime >= NOW()
 
 // Theatre filter if theatre is selected for filter
